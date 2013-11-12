@@ -25,7 +25,7 @@ namespace MechanicalMinion_GUI
         {
             InitializeComponent();
             changeDirectory.Click += (o, e) => ChangeDirectory();
-            fileList.SelectionChanged += (o, e) => UpdateButton(o, e);
+            fileList.SelectionChanged += (o, e) => UpdateButtons(o, e);
             
             UpdateLatestFiles(directory);
         }
@@ -44,6 +44,9 @@ namespace MechanicalMinion_GUI
                 fileList.SelectedItem = fileList.Items[0];
         }
 
+        /// <summary>
+        /// Opens a filebrowserdialog prompting the user to select a new default directory.
+        /// </summary>
         private void ChangeDirectory()
         {
             var folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
@@ -55,7 +58,10 @@ namespace MechanicalMinion_GUI
             UpdateLatestFiles(directory);
         }
 
-        private void UpdateButton(object sender, EventArgs e)
+        /// <summary>
+        /// Updates the content on the buttons depending on the selected file
+        /// </summary>
+        private void UpdateButtons(object sender, EventArgs e)
         {
             switch (((FileInfo)fileList.SelectedItem).Extension.ToLower())
             {
@@ -76,6 +82,79 @@ namespace MechanicalMinion_GUI
                     break;
             }
         }
+
+
+        /// <summary>
+        ///  Returns a bool indicating whether the file extension of the given file is extractable.
+        /// </summary>
+        private bool IsExtractable(FileInfo file)
+        {
+            switch (file.Extension.ToLower())
+            {
+                // Extractable
+                case (".7z"):
+                case (".7zip"):
+                case (".zip"):
+                case (".rar"):
+                    return true;
+                    
+                // Other
+                default:
+                    return false;
+            }
+        }
+
+        private void Extract(FileInfo file)
+        {
+
+        }
+
+        private void Open(FileInfo file)
+        {
+           
+        }
+
+        private void Delete(FileInfo file)
+        {
+
+        }
+
+        /// <summary>
+        /// Option 1 button click event
+        /// </summary>
+        private void opt1_Click(object sender, RoutedEventArgs e)
+        {
+            if (!fileList.HasItems || fileList.SelectedItem == null)
+            {
+                MessageBox.Show("Please select an item.", "Error", MessageBoxButton.OK);
+                return;
+            }
+
+            var file = (FileInfo)fileList.SelectedItem;
+        //    if (Actions.)
+
+        //    if (IsExtractable(file))
+             //   Actions.Extract()
+
+            //FileInfo selectedFile = 
+        }
+
+        /// <summary>
+        /// Option 2 button click event
+        /// </summary>
+        private void opt2_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// Option 3 button click event
+        /// </summary>
+        private void opt3_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
 
     }
 }

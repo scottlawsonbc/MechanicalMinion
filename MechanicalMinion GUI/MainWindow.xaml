@@ -11,13 +11,13 @@
                 <TextBlock Text="Most recent files" FontSize="14" Margin="1,1,1,1" DockPanel.Dock="Left"/>
                 <Button Name="changeDirectory" Content="Change directory" FontSize="10" DockPanel.Dock="Right" Background="AliceBlue" HorizontalAlignment="Right"/>
             </DockPanel>
-           
+
             <ListView Name="fileList" Margin="1" DockPanel.Dock="Top"/>
-            
+
             <DockPanel Height="30">
-                <Button Name="opt3" Content="button" Margin="1" FontSize="14" DockPanel.Dock="Right"/>
-                <Button Name="opt2" Content="button" Margin="1" FontSize="14" DockPanel.Dock="Right"/>
-                <Button Name="opt1" Content="button" Margin="1" FontSize="14" DockPanel.Dock="Right"/>
+                <Button Name="opt3" Content="button" Margin="1,0,1,1" FontSize="14" DockPanel.Dock="Right" Height="28" VerticalAlignment="Bottom" Click="opt3_Click"/>
+                <Button Name="opt2" Content="button" Margin="1" FontSize="14" DockPanel.Dock="Right" Click="opt2_Click"/>
+                <Button Name="opt1" Content="button" Margin="1" FontSize="14" DockPanel.Dock="Right" Click="opt1_Click"/>
             </DockPanel>
         </DockPanel>
     </Grid>

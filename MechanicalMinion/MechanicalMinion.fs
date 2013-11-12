@@ -44,6 +44,15 @@ module Actions =
     open System.IO
     open SharpCompress.Reader
 
+    /// Determine whether the specified file is locked
+    let IsFileLocked (file:string) = 
+        try 
+            use stream = File.Open(file, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+            stream.Close()
+            true
+        with 
+            (ex:IOException) -> false
+
     /// Moves the specified file. Can also be used to rename files
     let Move (source:string) (destination:string) = File.Move(source, destination)
 
@@ -59,12 +68,15 @@ module Actions =
         use stream = File.OpenRead file
         use reader = ReaderFactory.Open stream
         reader.WriteAllToDirectory(directory, option)
-            
+    
+    /// Opens a specified file. Does not check to see if file exists or is locked
+    let Open (file:string) = 
+        System.Diagnostics.Process.Start file
+
     /// Defines an extract extension method for the FileInfo type
     type FileInfo with
         member x.ExtractTo(directory:string) (overwrite:bool) = 
             Extract x.FullName directory overwrite
-
 
 //module Monitoring = 
 //    
