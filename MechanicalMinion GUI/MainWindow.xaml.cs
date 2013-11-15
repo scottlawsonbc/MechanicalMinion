@@ -24,69 +24,94 @@ namespace MechanicalMinion_GUI
         public MainWindow()
         {
             InitializeComponent();
+      
+            // Event handlers
             changeDirectory.Click += (o, e) => ChangeDirectory();
-            fileList.SelectionChanged += (o, e) => UpdateButtons(o, e);
+            fileList.SelectionChanged += SelectionChangedEvent;
+            this.Loaded += (o, e) => fileList.Focus();
+
+            // Prepare the buttons
+            opt1.Click += (o, e) => ExecuteOpt1();
+            opt2.Click += (o, e) => ExecuteOpt2();
+            opt3.Click += (o, e) => ExecuteOpt3();
+
+            // Set colours
+            opt1.Background = Brushes.AliceBlue;
+            opt2.Background = Brushes.AliceBlue;
+            opt3.Background = Brushes.AliceBlue;
+
+            // Focus handlers
+            opt1.GotFocus += (o, e) => opt1.Background = Brushes.LightSkyBlue;
+            opt2.GotFocus += (o, e) => opt2.Background = Brushes.LightSkyBlue;
+            opt3.GotFocus += (o, e) => opt3.Background = Brushes.LightSkyBlue;
+            opt1.LostFocus += (o, e) => opt1.Background = Brushes.AliceBlue;
+            opt2.LostFocus += (o, e) => opt2.Background = Brushes.AliceBlue; 
+            opt3.LostFocus += (o, e) => opt3.Background = Brushes.AliceBlue;                
             
+            // Populate the listview automatically
             UpdateLatestFiles(directory);
         }
 
+        // Fired when fileList selection is changed
+        private void SelectionChangedEvent(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateButtons();
+        }
+
+        /// Populates the file list with the most recently modified files
         private void UpdateLatestFiles(string directory)
         {
+            // Retrieve the most recently modified files
             FileInfo[] files = Retrieval.GetAllFiles(directory);
             var latestFiles = (from f in files
                                orderby f.LastWriteTime descending
                                select f).ToArray();
-            int length = (latestFiles.Length >= 5) ? 5 : latestFiles.Length;
+           
+            fileList.SelectionChanged -= SelectionChangedEvent; // Prevent event notification for null items.
             fileList.Items.Clear();
+            fileList.SelectionChanged += SelectionChangedEvent; // Reattach the event handler
+
+            // Add the retrieved files to the fileList
+            int length = (latestFiles.Length >= 5) ? 5 : latestFiles.Length; // Don't add more than five files
             for (int i = 0; i < length; i++)
                 fileList.Items.Add(latestFiles[i]);
             if (fileList.HasItems)
                 fileList.SelectedItem = fileList.Items[0];
         }
 
-        /// <summary>
         /// Opens a filebrowserdialog prompting the user to select a new default directory.
-        /// </summary>
         private void ChangeDirectory()
         {
+            // Open a browser dialog and check to see if the user selected a new folder
             var folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             if (folderBrowser.ShowDialog() != System.Windows.Forms.DialogResult.OK)
                 return;
+
+            // Save the new folder to settings
             directory = folderBrowser.SelectedPath;
             Properties.Settings.Default.defaultDirectory = directory;
             Properties.Settings.Default.Save();
             UpdateLatestFiles(directory);
         }
 
-        /// <summary>
-        /// Updates the content on the buttons depending on the selected file
-        /// </summary>
-        private void UpdateButtons(object sender, EventArgs e)
+        // Updates the content on the buttons depending on the selected file
+        private void UpdateButtons()
         {
-            switch (((FileInfo)fileList.SelectedItem).Extension.ToLower())
+            if (IsExtractable((FileInfo)fileList.SelectedItem))
             {
-                // Extractable
-                case (".7z"):
-                case (".7zip"):
-                case (".zip"):
-                case (".rar"):
-                    opt1.Content = "Extract";
-                    opt2.Content = "Open";
-                    opt3.Content = "Delete";
-                    break;
-                // Other
-                default:
-                    opt1.Content = "Open";
-                    opt2.Content = "Put away";
-                    opt3.Content = "Delete";
-                    break;
+                opt1.Content = "Extract";
+                opt2.Content = "Put away";
+                opt3.Content = "Delete";
+            }
+            else
+            {
+                opt1.Content = "Open";
+                opt2.Content = "Put away";
+                opt3.Content = "Delete";
             }
         }
 
-
-        /// <summary>
-        ///  Returns a bool indicating whether the file extension of the given file is extractable.
-        /// </summary>
+        // Returns a bool indicating whether the file extension of the given file is extractable.
         private bool IsExtractable(FileInfo file)
         {
             switch (file.Extension.ToLower())
@@ -97,32 +122,15 @@ namespace MechanicalMinion_GUI
                 case (".zip"):
                 case (".rar"):
                     return true;
-                    
+
                 // Other
                 default:
                     return false;
             }
         }
 
-        private void Extract(FileInfo file)
-        {
-
-        }
-
-        private void Open(FileInfo file)
-        {
-           
-        }
-
-        private void Delete(FileInfo file)
-        {
-
-        }
-
-        /// <summary>
-        /// Option 1 button click event
-        /// </summary>
-        private void opt1_Click(object sender, RoutedEventArgs e)
+        // Extract or Open
+        private void ExecuteOpt1()
         {
             if (!fileList.HasItems || fileList.SelectedItem == null)
             {
@@ -131,30 +139,68 @@ namespace MechanicalMinion_GUI
             }
 
             var file = (FileInfo)fileList.SelectedItem;
-        //    if (Actions.)
 
-        //    if (IsExtractable(file))
-             //   Actions.Extract()
-
-            //FileInfo selectedFile = 
+            if (IsExtractable(file)) // Extract compressed files
+            {
+                try
+                {
+                    string extractDirectory = file.FullName.Remove(file.FullName.Length - 4);
+                    Actions.Extract(file.FullName, extractDirectory, true);
+                    Actions.Open(extractDirectory);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: " + ex.Message, "Error", MessageBoxButton.OK);
+                }
+            }
+            else // Open other programs
+            {
+                try { Actions.Open(file.FullName); }
+                catch (Exception ex) { MessageBox.Show("Error: " + ex.Message, "Error", MessageBoxButton.OK); }
+            }
+           
+            UpdateLatestFiles(directory);
+            UpdateButtons();
         }
-
-        /// <summary>
-        /// Option 2 button click event
-        /// </summary>
-        private void opt2_Click(object sender, RoutedEventArgs e)
+        
+        // Putaway
+        private void ExecuteOpt2()
         {
 
         }
 
-        /// <summary>
-        /// Option 3 button click event
-        /// </summary>
-        private void opt3_Click(object sender, RoutedEventArgs e)
+        // Delete
+        private void ExecuteOpt3()
         {
+            if (!fileList.HasItems || fileList.SelectedItem == null)
+            {
+                MessageBox.Show("Please select an item.", "Error", MessageBoxButton.OK);
+                return;
+            }
 
+            try
+            {
+                var file = (FileInfo)fileList.SelectedItem;
+                string fileName = file.FullName;
+                fileList.Items.Remove(file);
+                Actions.Delete(fileName);
+                while (File.Exists(fileName)) // Wait for file to be deleted
+                    System.Threading.Thread.Sleep(20);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message, "Error", MessageBoxButton.OK);
+            }
+            UpdateLatestFiles(directory);
+            UpdateButtons();
         }
 
-
+        /// Focus to buttons when user presses the enter key
+        private void fileListKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+            opt1.Focus();
+            e.Handled = true;
+        }
     }
 }

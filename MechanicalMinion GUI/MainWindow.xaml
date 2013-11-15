@@ -12,13 +12,18 @@
                 <Button Name="changeDirectory" Content="Change directory" FontSize="10" DockPanel.Dock="Right" Background="AliceBlue" HorizontalAlignment="Right"/>
             </DockPanel>
 
-            <ListView Name="fileList" Margin="1" DockPanel.Dock="Top"/>
+            <ListView Name="fileList" Margin="1" DockPanel.Dock="Top" SelectionMode="Single" PreviewKeyDown="fileListKeyDown" TabIndex="0"/>
 
             <DockPanel Height="30">
-                <Button Name="opt3" Content="button" Margin="1,0,1,1" FontSize="14" DockPanel.Dock="Right" Height="28" VerticalAlignment="Bottom" Click="opt3_Click"/>
-                <Button Name="opt2" Content="button" Margin="1" FontSize="14" DockPanel.Dock="Right" Click="opt2_Click"/>
-                <Button Name="opt1" Content="button" Margin="1" FontSize="14" DockPanel.Dock="Right" Click="opt1_Click"/>
+                <Button Name="opt3" Content="button" Margin="1,0,1,1" FontSize="14" DockPanel.Dock="Right" Height="28" VerticalAlignment="Bottom" TabIndex="3"/>
+                <Button Name="opt2" Content="button" Margin="1" FontSize="14" DockPanel.Dock="Right" TabIndex="2"/>
+                <Button Name="opt1" Content="button" Margin="1" FontSize="14" DockPanel.Dock="Right" TabIndex="1"/>
             </DockPanel>
         </DockPanel>
     </Grid>
+    
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding Path=NameOfYourCommand}" Key="O" Modifiers="Control"/>
+    </Window.InputBindings>
+
 </Window>

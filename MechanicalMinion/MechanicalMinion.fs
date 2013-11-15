@@ -47,11 +47,11 @@ module Actions =
     /// Determine whether the specified file is locked
     let IsFileLocked (file:string) = 
         try 
-            use stream = File.Open(file, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+            use stream = File.Open(file, FileMode.Open, FileAccess.ReadWrite, FileShare.None)
             stream.Close()
             true
         with 
-            (ex:IOException) -> false
+            | :? IOException -> false
 
     /// Moves the specified file. Can also be used to rename files
     let Move (source:string) (destination:string) = File.Move(source, destination)
